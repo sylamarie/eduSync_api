@@ -4,9 +4,10 @@
   "description": "The backend API for a school's student information system.",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js",
-    "swagger": "node ./swagger.js"
+    "swagger": "node ./swagger.js",
+    "test": "jest --runInBand",
+    "test:remote": "cross-env BASE_URL=https://REPLACE-ME.onrender.com jest --runInBand"
   },
   "repository": {
     "type": "git",
@@ -25,5 +26,13 @@
     "mongodb": "^6.18.0",
     "swagger-autogen": "^2.23.7",
     "swagger-ui-express": "^5.0.1"
+  },
+  "devDependencies": {
+    "cross-env": "^10.0.0",
+    "jest": "^30.0.5",
+    "supertest": "^7.1.4"
+  },
+  "jest": {
+    "testEnvironment": "node"
   }
 }
