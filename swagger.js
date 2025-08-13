@@ -13,14 +13,7 @@ const doc = {
     version: '1.0.0'
   },
   host: host,
-  schemes: isProduction ? ['https'] : ['http'],
-  securityDefinitions: {
-    api_key: {
-        type: 'apiKey',
-        name: 'api_key',
-        in: 'header'
-    }
-  }
+  schemes: isProduction ? ['https'] : ['http']
 };
 
 const outputFile = './swagger.json';
