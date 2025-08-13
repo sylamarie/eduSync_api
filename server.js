@@ -50,7 +50,7 @@ app
   .use(cors({ methods: ['GET', 'POST', 'DELETE', 'UPDATE', 'PUT', 'PATCH'], origin: '*' }));
 
 // 🔹 Swagger UI serving the generated spec
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+app.use('/api-docs', require('./routes/swagger.js'));
 
 // 🔹 Routes
 app.use("/", require('./routes/index.js'));
