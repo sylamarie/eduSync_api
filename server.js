@@ -21,10 +21,10 @@ const swaggerUi = require('swagger-ui-express');
 const swaggerDocument = require('./swagger.json');
 
 const port = process.env.PORT || 3000;
-const githubCallbackURL = process.env.CALLBACK_URL || `http://localhost:${port}/github/callback`;
+// const githubCallbackURL = process.env.CALLBACK_URL || `http://localhost:${port}/github/callback`;
 
 // ✅ Trust proxy to detect https on Render
-app.set('trust proxy', true);
+// app.set('trust proxy', true);
 
 app
   .use(bodyParser.json())
@@ -59,7 +59,7 @@ passport.use(new GithubStrategy(
   {
     clientID: process.env.GITHUB_CLIENT_ID,
     clientSecret: process.env.GITHUB_CLIENT_SECRET,
-    callbackURL: githubCallbackURL,
+    callbackURL: process.env.CALLBACK_URL
   },
   function (accessToken, refreshToken, profile, done) {
     return done(null, profile);
