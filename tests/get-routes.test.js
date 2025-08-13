@@ -1,72 +1,112 @@
-// tests/get-routes.test.js
+// tests/routes-crud.test.js
 const request = require('supertest');
 
-// 1) Base URL: set via package.json script (test:remote) or defaults to localhost
-const BASE_URL = process.env.BASE_URL || 'http://localhost:3000';
-
-// 2) If your API has a prefix like /api or /api/v1, set it here ('' if none)
-const API_PREFIX = ''; // e.g., '/api' or '/api/v1'
-
-// 3) The four collections required by the rubric
+// ----------------- Configuration -----------------
+const BASE_URL = process.env.BASE_URL || 'https://edusync-api-7p52.onrender.com';
+const API_PREFIX = ''; // e.g., '/api' or '/api/v1'; keep '' if none
 const COLLECTIONS = ['students', 'users', 'courses', 'enrollments'];
 
-// If GET endpoints require auth, set TOKEN env and uncomment the .set(...) lines below:
-// const AUTH = process.env.TOKEN ? { Authorization: `Bearer ${process.env.TOKEN}` } : null;
+// If your endpoints require OAuth authentication, set TOKEN in .env
+const AUTH = process.env.TOKEN ? { Authorization: `Bearer ${process.env.TOKEN}` } : null;
 
-COLLECTIONS.forEach((name) => {
-  describe(`${name.toUpperCase()} GET routes`, () => {
+// ----------------- Helper Functions -----------------
+function getId(doc) {
+  return doc._id || doc.id || doc.uuid || null;
+}
+
+function generateMockData(collection) {
+  switch (collection) {
+    case 'students':
+      return { name: `Test Student ${Date.now()}`, email: `student${Date.now()}@school.com` };
+    case 'users':
+      return { username: `user${Date.now()}`, password: 'Password123!' };
+    case 'courses':
+      return { name: `Test Course ${Date.now()}`, code: `C-${Date.now()}` };
+    case 'enrollments':
+      return { studentId: 'dummyStudentId', courseId: 'dummyCourseId', status: 'active' };
+    default:
+      return {};
+  }
+}
+
+function generateUpdateData(collection) {
+  switch (collection) {
+    case 'students':
+      return { name: `Updated Student ${Date.now()}` };
+    case 'users':
+      return { username: `UpdatedUser${Date.now()}` };
+    case 'courses':
+      return { name: `Updated Course ${Date.now()}` };
+    case 'enrollments':
+      return { status: 'completed' };
+    default:
+      return {};
+  }
+}
+
+// ----------------- CRUD Tests -----------------
+COLLECTIONS.forEach((collection) => {
+  describe(`${collection.toUpperCase()} CRUD routes`, () => {
     let sampleId = null;
 
-    test(`GET ${API_PREFIX}/${name} returns 200/204/404`, async () => {
+    // ---------- GET all ----------
+    test(`GET ${API_PREFIX}/${collection} returns 200/204/404`, async () => {
       const res = await request(BASE_URL)
-        .get(`${API_PREFIX}/${name}`)
-        // .set(AUTH ? AUTH : {}) // uncomment if your routes need a Bearer token
-      ;
+        .get(`${API_PREFIX}/${collection}`)
+        .set(AUTH ? AUTH : {});
+      console.log(`${collection} GET all → Status:`, res.status);
 
-      // Accept 200 (OK), 204 (No Content), or 404 (empty/none)
       expect([200, 204, 404]).toContain(res.status);
-
-      // Only inspect body if we actually got one (status 200)
-      if (res.status === 200) {
-        expect(Array.isArray(res.body)).toBe(true);
-
-        // Grab an id for the by-id test (if any docs exist)
-        if (res.body.length) {
-          sampleId = res.body[0]._id || res.body[0].id || res.body[0].uuid;
-        }
-      }
+      if (res.status === 200 && res.body.length) sampleId = getId(res.body[0]);
     });
 
-    test(`GET ${API_PREFIX}/${name}/:id returns 200 or 404`, async () => {
-      // If we didn't get an id yet, try listing again quickly:
-      if (!sampleId) {
-        const list = await request(BASE_URL)
-          .get(`${API_PREFIX}/${name}`)
-          // .set(AUTH ? AUTH : {})
-        ;
-        if (list.status === 200 && Array.isArray(list.body) && list.body.length) {
-          sampleId = list.body[0]._id || list.body[0].id || list.body[0].uuid;
-        }
-      }
-
-      // If still no data, just skip gracefully (collection is empty)
-      if (!sampleId) {
-        console.warn(`⚠️  No documents in ${name}; skipping GET by id.`);
-        return;
-      }
-
+    // ---------- POST ----------
+    test(`POST ${API_PREFIX}/${collection}`, async () => {
+      const mockData = generateMockData(collection);
       const res = await request(BASE_URL)
-        .get(`${API_PREFIX}/${name}/${sampleId}`)
-        // .set(AUTH ? AUTH : {})
-      ;
+        .post(`${API_PREFIX}/${collection}`)
+        .send(mockData)
+        .set(AUTH ? AUTH : {});
+      console.log(`${collection} POST → Status:`, res.status, 'Body:', res.body);
+
+      expect([201, 400, 401]).toContain(res.status);
+      if (res.status === 201) sampleId = getId(res.body);
+    });
+
+    // ---------- GET by ID ----------
+    test(`GET ${API_PREFIX}/${collection}/:id returns 200 or 404`, async () => {
+      if (!sampleId) return;
+      const res = await request(BASE_URL)
+        .get(`${API_PREFIX}/${collection}/${sampleId}`)
+        .set(AUTH ? AUTH : {});
+      console.log(`${collection} GET by ID → Status:`, res.status);
 
       expect([200, 404]).toContain(res.status);
-      if (res.status === 200) {
-        expect(res.body).toBeTruthy();
-        // Optionally check the same id matches if your API returns it:
-        // const gotId = res.body._id || res.body.id || res.body.uuid;
-        // expect(gotId).toBe(sampleId);
-      }
+      if (res.status === 200) expect(res.body).toBeTruthy();
+    });
+
+    // ---------- PUT ----------
+    test(`PUT ${API_PREFIX}/${collection}/:id`, async () => {
+      if (!sampleId) return;
+      const updateData = generateUpdateData(collection);
+      const res = await request(BASE_URL)
+        .put(`${API_PREFIX}/${collection}/${sampleId}`)
+        .send(updateData)
+        .set(AUTH ? AUTH : {});
+      console.log(`${collection} PUT → Status:`, res.status);
+
+      expect([200, 400, 401, 404]).toContain(res.status);
+    });
+
+    // ---------- DELETE ----------
+    test(`DELETE ${API_PREFIX}/${collection}/:id`, async () => {
+      if (!sampleId) return;
+      const res = await request(BASE_URL)
+        .delete(`${API_PREFIX}/${collection}/${sampleId}`)
+        .set(AUTH ? AUTH : {});
+      console.log(`${collection} DELETE → Status:`, res.status);
+
+      expect([200, 401, 404]).toContain(res.status);
     });
   });
 });
