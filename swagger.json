@@ -5,10 +5,11 @@
     "description": "API for managing a school's student information system. It allows authenticated staff to manage student records, courses, and enrollments.",
     "version": "1.0.0"
   },
-  "host": "localhost:3000",
+  "host": "edusync-api-7p52.onrender.com",
   "basePath": "/",
   "schemes": [
-    "http"
+    "http",
+    "https"
   ],
   "securityDefinitions": {
     "api_key": {
