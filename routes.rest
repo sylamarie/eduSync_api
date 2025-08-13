@@ -1,5 +1,4 @@
 ### EduSync API - REST Client Tests
-
 ### ========================================
 ### STUDENTS ENDPOINTS
 ### ========================================
@@ -104,6 +103,60 @@ Content-Type: application/json
 
 # Delete a course by ID
 DELETE http://localhost:3000/courses/688e4c9ddf18657252871311
+Content-Type: application/json
+
+###
+
+### ========================================
+### ENROLLMENTS ENDPOINTS
+### ========================================
+
+# Get all enrollments
+GET http://localhost:3000/enrollments
+Content-Type: application/json
+
+###
+
+# Get a single enrollment by ID
+GET http://localhost:3000/enrollments/6899f7231396b54faf6374bd
+Content-Type: application/json
+
+###
+
+# Create a new enrollment
+POST http://localhost:3000/enrollments
+Content-Type: application/json
+
+{
+    "studentId": "68864bb23c73f6fdc2cf8727",
+    "courseId": "688648de3c73f6fdc2cf871f",
+    "enrollmentDate": "10-02-26",
+    "status": "Active",
+    "finalGrade": "90",
+    "semester": "Fall",
+    "creditsEarned": 40
+}
+
+###
+
+# Update an enrollment by ID
+PUT http://localhost:3000/enrollments/688e4f2ddf18657252871313
+Content-Type: application/json
+
+{
+    "studentId": "68864bb23c73f6fdc2cf8727",
+    "courseId": "688648de3c73f6fdc2cf871f",
+    "enrollmentDate": "10-02-26",
+    "status": "Completed",
+    "finalGrade": "95",
+    "semester": "Fall",
+    "creditsEarned": 40
+}
+
+###
+
+# Delete an enrollment by ID
+DELETE http://localhost:3000/enrollments/688e4f2ddf18657252871313
 Content-Type: application/json
 
 ###

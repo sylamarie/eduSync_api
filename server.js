@@ -1,5 +1,6 @@
 const express = require('express');
 const dotenv = require('dotenv');
+
 // Silence dotenv console output during config
 (() => {
   const originalConsoleLog = console.log;
@@ -10,22 +11,21 @@ const dotenv = require('dotenv');
     console.log = originalConsoleLog;
   }
 })();
+
 const bodyParser = require('body-parser');
 const mongodb = require('./data/database');
 const app = express();
+// Trust proxy for secure connections
+app.set('trust proxy', true);
+
 const passport = require('passport');
 const session = require('express-session');
 const GithubStrategy = require('passport-github2').Strategy;
 const cors = require('cors');
-const swaggerUi = require('swagger-ui-express');
-const swaggerDocument = require('./swagger.json');
 
 const port = process.env.PORT || 3000;
-const githubCallbackURL = process.env.CALLBACK_URL || `http://localhost:${port}/github/callback`;
 
-// ✅ Trust proxy to detect https on Render
-app.set('trust proxy', true);
-
+// Middleware
 app
   .use(bodyParser.json())
   .use(session({
@@ -47,19 +47,23 @@ app
     );
     next();
   })
-  .use(cors({ methods: ['GET', 'POST', 'DELETE', 'UPDATE', 'PUT', 'PATCH'], origin: '*' }));
+  .use(cors({
+    methods: ['GET', 'POST', 'DELETE', 'UPDATE', 'PUT', 'PATCH'],
+    origin: '*'
+  }));
 
-// 🔹 Swagger UI serving the generated spec
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+// 🔹 Swagger UI (runtime protocol/host detection)
+app.use('/api-docs', require('./routes/swagger.js'));
 
-// 🔹 Routes
+// 🔹 Main routes
 app.use("/", require('./routes/index.js'));
 
+// GitHub OAuth setup
 passport.use(new GithubStrategy(
   {
     clientID: process.env.GITHUB_CLIENT_ID,
     clientSecret: process.env.GITHUB_CLIENT_SECRET,
-    callbackURL: githubCallbackURL,
+    callbackURL: process.env.CALLBACK_URL
   },
   function (accessToken, refreshToken, profile, done) {
     return done(null, profile);
@@ -73,7 +77,7 @@ passport.deserializeUser((user, done) => {
   done(null, user);   
 });
 
-// Start GitHub OAuth flow
+// OAuth routes
 app.get('/github', passport.authenticate('github', { scope: ['user:email'] }));
 
 app.get(
@@ -85,7 +89,7 @@ app.get(
   }
 );
 
-// Simple GET logout route for browsers
+// Simple GET logout route
 app.get('/logout', (req, res) => {
   req.session.destroy((err) => {
     if (err) {
@@ -96,7 +100,7 @@ app.get('/logout', (req, res) => {
   });
 });
 
-// 🔹 MongoDB init and server listen
+// MongoDB init and server listen
 mongodb.initDb((err) => {
   if (err) {
     console.log(err);
