@@ -5,9 +5,7 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "swagger": "node ./swagger.js",
-    "test": "jest --runInBand",
-    "test:remote": "cross-env BASE_URL=https://REPLACE-ME.onrender.com jest --runInBand"
+    "swagger": "node ./swagger.js"
   },
   "repository": {
     "type": "git",
@@ -32,13 +30,5 @@
     "swagger-autogen": "^2.23.7",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1"
-  },
-  "devDependencies": {
-    "cross-env": "^10.0.0",
-    "jest": "^30.0.5",
-    "supertest": "^7.1.4"
-  },
-  "jest": {
-    "testEnvironment": "node"
   }
 }

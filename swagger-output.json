@@ -2,15 +2,32 @@
   "swagger": "2.0",
   "info": {
     "title": "EduSync API",
-    "description": "API for managing a school's student information system. It allows authenticated staff to manage student records, courses, enrollments, and related data.",
+    "description": "API for managing a school's student information system. It allows authenticated staff to manage student records, courses, and enrollments.",
     "version": "1.0.0"
   },
   "host": "edusync-api-7p52.onrender.com",
   "basePath": "/",
   "schemes": [
-    "http",
     "https"
   ],
+  "securityDefinitions": {
+    "api_key": {
+      "type": "apiKey",
+      "name": "api_key",
+      "in": "header"
+    },
+    "github_oauth": {
+      "type": "oauth2",
+      "flow": "implicit",
+      "authorizationUrl": "https://edusync-api-7p52.onrender.com/auth/github",
+      "scopes": {
+        "read:students": "Read student information",
+        "write:students": "Create and update student information",
+        "read:courses": "Read course information",
+        "write:courses": "Create and update courses"
+      }
+    }
+  },
   "paths": {
     "/": {
       "get": {
@@ -533,19 +550,29 @@
     },
     "/enrollments/": {
       "get": {
-        "tags": ["Enrollments"],
+        "tags": [
+          "Enrollments"
+        ],
         "summary": "Get all enrollments",
-        "description": "Retrieves a list of all enrollments from the database.",
-        "produces": ["application/json"],
+        "description": "Retrieves a list of all student enrollments from the database.",
+        "produces": [
+          "application/json"
+        ],
         "responses": {
-          "200": { "description": "OK" },
-          "500": { "description": "Internal Server Error" }
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
         }
       },
       "post": {
-        "tags": ["Enrollments"],
+        "tags": [
+          "Enrollments"
+        ],
         "summary": "Create a new enrollment",
-        "description": "Adds a new enrollment to the database. All fields are required.",
+        "description": "Adds a new enrollment to the database, linking a student to a course.",
         "parameters": [
           {
             "name": "body",
@@ -553,31 +580,57 @@
             "schema": {
               "type": "object",
               "properties": {
-                "studentId": { "example": "68864bed3c73f6fdc2cf8728" },
-                "courseId": { "example": "6886492a3c73f6fdc2cf8722" },
-                "enrollmentDate": { "example": "10-02-26" },
-                "status": { "example": "Active" },
-                "finalGrade": { "example": "90" },
-                "semester": { "example": "Fall" },
-                "creditsEarned": { "example": 90 }
+                "studentId": {
+                  "example": "any"
+                },
+                "courseId": {
+                  "example": "any"
+                },
+                "enrollmentDate": {
+                  "example": "any"
+                },
+                "status": {
+                  "example": "any"
+                },
+                "finalGrade": {
+                  "example": "any"
+                },
+                "semester": {
+                  "example": "any"
+                },
+                "creditsEarned": {
+                  "example": "any"
+                }
               }
             }
           }
         ],
         "responses": {
-          "201": { "description": "Created" },
-          "400": { "description": "Bad Request" },
-          "401": { "description": "Unauthorized" },
-          "500": { "description": "Internal Server Error" }
+          "201": {
+            "description": "Created"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
         }
       }
     },
     "/enrollments/{id}": {
       "get": {
-        "tags": ["Enrollments"],
+        "tags": [
+          "Enrollments"
+        ],
         "summary": "Get a single enrollment by ID",
         "description": "Retrieves a single enrollment based on its unique MongoDB document ID.",
-        "produces": ["application/json"],
+        "produces": [
+          "application/json"
+        ],
         "parameters": [
           {
             "name": "id",
@@ -587,14 +640,24 @@
           }
         ],
         "responses": {
-          "200": { "description": "OK" },
-          "400": { "description": "Bad Request" },
-          "404": { "description": "Not Found" },
-          "500": { "description": "Internal Server Error" }
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
         }
       },
       "put": {
-        "tags": ["Enrollments"],
+        "tags": [
+          "Enrollments"
+        ],
         "summary": "Update an existing enrollment",
         "description": "Updates the information for an existing enrollment by its document ID.",
         "parameters": [
@@ -610,27 +673,53 @@
             "schema": {
               "type": "object",
               "properties": {
-                "studentId": { "example": "68864bed3c73f6fdc2cf8728" },
-                "courseId": { "example": "6886492a3c73f6fdc2cf8722" },
-                "enrollmentDate": { "example": "10-02-26" },
-                "status": { "example": "Active" },
-                "finalGrade": { "example": "90" },
-                "semester": { "example": "Fall" },
-                "creditsEarned": { "example": 90 }
+                "studentId": {
+                  "example": "any"
+                },
+                "courseId": {
+                  "example": "any"
+                },
+                "enrollmentDate": {
+                  "example": "any"
+                },
+                "status": {
+                  "example": "any"
+                },
+                "finalGrade": {
+                  "example": "any"
+                },
+                "semester": {
+                  "example": "any"
+                },
+                "creditsEarned": {
+                  "example": "any"
+                }
               }
             }
           }
         ],
         "responses": {
-          "200": { "description": "OK" },
-          "400": { "description": "Bad Request" },
-          "401": { "description": "Unauthorized" },
-          "404": { "description": "Not Found" },
-          "500": { "description": "Internal Server Error" }
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
         }
       },
       "delete": {
-        "tags": ["Enrollments"],
+        "tags": [
+          "Enrollments"
+        ],
         "summary": "Delete an enrollment",
         "description": "Deletes an enrollment from the database by its document ID.",
         "parameters": [
@@ -642,13 +731,253 @@
           }
         ],
         "responses": {
-          "200": { "description": "OK" },
-          "400": { "description": "Bad Request" },
-          "401": { "description": "Unauthorized" },
-          "404": { "description": "Not Found" },
-          "500": { "description": "Internal Server Error" }
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
         }
       }
+    }
+  },
+  "definitions": {
+    "Student": {
+      "type": "object",
+      "properties": {
+        "_id": {
+          "type": "string",
+          "example": "66a16d8a7f1f3a8e1b9b3b4a"
+        },
+        "firstName": {
+          "type": "string",
+          "example": "John"
+        },
+        "lastName": {
+          "type": "string",
+          "example": "Doe"
+        },
+        "dateOfBirth": {
+          "type": "string",
+          "example": "2005-04-23"
+        },
+        "studentId": {
+          "type": "string",
+          "example": "STU12345"
+        },
+        "grade": {
+          "type": "string",
+          "example": "Form 3"
+        },
+        "email": {
+          "type": "string",
+          "example": "johndoe@example.com"
+        },
+        "address": {
+          "type": "string",
+          "example": "123 Main St, Harare"
+        },
+        "guardianName": {
+          "type": "string",
+          "example": "Jane Doe"
+        },
+        "guardianContact": {
+          "type": "string",
+          "example": "+263712345678"
+        }
+      }
+    },
+    "Course": {
+      "type": "object",
+      "properties": {
+        "_id": {
+          "type": "string",
+          "example": "66a16eaa7f1f3a8e1b9b3b4b"
+        },
+        "courseCode": {
+          "type": "string",
+          "example": "MATH101"
+        },
+        "courseName": {
+          "type": "string",
+          "example": "Mathematics"
+        },
+        "description": {
+          "type": "string",
+          "example": "An introductory course to algebra and geometry"
+        },
+        "credits": {
+          "type": "number",
+          "example": 3
+        },
+        "teacher": {
+          "type": "string",
+          "example": "Mr. Smith"
+        }
+      }
+    },
+    "Enrollment": {
+      "type": "object",
+      "properties": {
+        "_id": {
+          "type": "string",
+          "example": "66a16fbc7f1f3a8e1b9b3b4c"
+        },
+        "studentId": {
+          "type": "string",
+          "example": "66a16d8a7f1f3a8e1b9b3b4a"
+        },
+        "courseId": {
+          "type": "string",
+          "example": "66a16eaa7f1f3a8e1b9b3b4b"
+        },
+        "enrollmentDate": {
+          "type": "string",
+          "example": "2025-01-15"
+        },
+        "status": {
+          "type": "string",
+          "example": "active"
+        },
+        "finalGrade": {
+          "type": "string",
+          "example": "A"
+        },
+        "semester": {
+          "type": "string",
+          "example": "Semester 1"
+        },
+        "creditsEarned": {
+          "type": "number",
+          "example": 3
+        }
+      }
+    },
+    "StudentInput": {
+      "type": "object",
+      "properties": {
+        "firstName": {
+          "type": "string",
+          "example": "John"
+        },
+        "lastName": {
+          "type": "string",
+          "example": "Doe"
+        },
+        "dateOfBirth": {
+          "type": "string",
+          "example": "2005-04-23"
+        },
+        "studentId": {
+          "type": "string",
+          "example": "STU12345"
+        },
+        "grade": {
+          "type": "string",
+          "example": "Form 3"
+        },
+        "email": {
+          "type": "string",
+          "example": "johndoe@example.com"
+        },
+        "address": {
+          "type": "string",
+          "example": "123 Main St, Harare"
+        },
+        "guardianName": {
+          "type": "string",
+          "example": "Jane Doe"
+        },
+        "guardianContact": {
+          "type": "string",
+          "example": "+263712345678"
+        }
+      },
+      "required": [
+        "firstName",
+        "lastName",
+        "dateOfBirth",
+        "studentId",
+        "grade"
+      ]
+    },
+    "CourseInput": {
+      "type": "object",
+      "properties": {
+        "courseCode": {
+          "type": "string",
+          "example": "MATH101"
+        },
+        "courseName": {
+          "type": "string",
+          "example": "Mathematics"
+        },
+        "description": {
+          "type": "string",
+          "example": "An introductory course to algebra and geometry"
+        },
+        "credits": {
+          "type": "number",
+          "example": 3
+        },
+        "teacher": {
+          "type": "string",
+          "example": "Mr. Smith"
+        }
+      },
+      "required": [
+        "courseCode",
+        "courseName",
+        "credits"
+      ]
+    },
+    "EnrollmentInput": {
+      "type": "object",
+      "properties": {
+        "studentId": {
+          "type": "string",
+          "example": "66a16d8a7f1f3a8e1b9b3b4a"
+        },
+        "courseId": {
+          "type": "string",
+          "example": "66a16eaa7f1f3a8e1b9b3b4b"
+        },
+        "enrollmentDate": {
+          "type": "string",
+          "example": "2025-01-15"
+        },
+        "status": {
+          "type": "string",
+          "example": "active"
+        },
+        "finalGrade": {
+          "type": "string",
+          "example": "A"
+        },
+        "semester": {
+          "type": "string",
+          "example": "Semester 1"
+        },
+        "creditsEarned": {
+          "type": "number",
+          "example": 3
+        }
+      },
+      "required": [
+        "studentId",
+        "courseId",
+        "enrollmentDate",
+        "status"
+      ]
     }
   }
 }

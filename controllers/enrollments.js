@@ -1,11 +1,11 @@
 const mongodb = require('../data/database');
 const ObjectId = require('mongodb').ObjectId;
 
-// Validation function for enrollment data
+// Validation function for enrollment data (updated to 7 fields)
 const validateEnrollment = (data) => {
-    const requiredFields = ['studentId', 'courseId', 'enrollmentDate', 'status'];
+    const requiredFields = ['studentId', 'courseId', 'enrollmentDate', 'status', 'finalGrade', 'semester', 'creditsEarned'];
     for (const field of requiredFields) {
-        if (!data[field]) {
+        if (!data[field] && data[field] !== 0) { // Allow 0 for creditsEarned
             return { valid: false, message: `Field '${field}' is required.` };
         }
     }
@@ -14,6 +14,9 @@ const validateEnrollment = (data) => {
     }
     if (!ObjectId.isValid(data.courseId)) {
         return { valid: false, message: 'Invalid courseId format.' };
+    }
+    if (typeof data.creditsEarned !== 'number') {
+        return { valid: false, message: 'Field \'creditsEarned\' must be a number.' };
     }
     return { valid: true };
 };
@@ -68,7 +71,10 @@ const createEnrollment = async (req, res) => {
         studentId: new ObjectId(req.body.studentId),
         courseId: new ObjectId(req.body.courseId),
         enrollmentDate: req.body.enrollmentDate, // e.g., "2024-08-15T00:00:00.000Z"
-        status: req.body.status // e.g., "Enrolled", "Completed", "Withdrawn"
+        status: req.body.status, // e.g., "Enrolled", "Completed", "Withdrawn"
+        finalGrade: req.body.finalGrade, // e.g., "A", "B+", "In Progress"
+        semester: req.body.semester, // e.g., "Fall 2024"
+        creditsEarned: req.body.creditsEarned // e.g., 3
     };
 
     try {
@@ -102,7 +108,10 @@ const updateEnrollment = async (req, res) => {
         studentId: new ObjectId(req.body.studentId),
         courseId: new ObjectId(req.body.courseId),
         enrollmentDate: req.body.enrollmentDate,
-        status: req.body.status
+        status: req.body.status,
+        finalGrade: req.body.finalGrade,
+        semester: req.body.semester,
+        creditsEarned: req.body.creditsEarned
     };
 
     try {
